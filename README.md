@@ -4,8 +4,6 @@ A minimal Wayland screenshot tool with a **true screen freeze** built from scrat
 
 No `swaybg`, no `swaylock`, no `wayfreeze`, no `grim` for the freeze — pure Wayland protocol code.
 
----
-
 ## How it works
 
 Two components:
@@ -34,8 +32,6 @@ Two components:
 myfreeze (capture + freeze) -> slurp (select region) -> unfreeze -> grim (capture region)
 ```
 
----
-
 ## Protocols used
 
 | Protocol                 | Source                    | Purpose                                |
@@ -45,8 +41,6 @@ myfreeze (capture + freeze) -> slurp (select region) -> unfreeze -> grim (captur
 | `wp-fractional-scale-v1` | wayland-protocols/staging | Get exact HiDPI scale factor           |
 | `wp-viewporter`          | wayland-protocols/stable  | Pixel-perfect buffer-to-screen mapping |
 | `xdg-shell`              | wayland-protocols/stable  | Required by wlr-layer-shell            |
-
----
 
 ## Dependencies
 
@@ -67,8 +61,6 @@ myfreeze (capture + freeze) -> slurp (select region) -> unfreeze -> grim (captur
 sudo pacman -S wayland wayland-protocols wayland-utils grim slurp wl-clipboard
 yay -S wlr-protocols
 ```
-
----
 
 ## Build
 
@@ -107,8 +99,6 @@ make uninstall  # remove from ~/.local/bin/
 make clean      # remove binary + generated protocol files
 ```
 
----
-
 ## Usage
 
 ```sh
@@ -120,8 +110,6 @@ myshot -a -c    # area select, clipboard only
 
 Output files are saved as `~/Pictures/Shot_YYYYMMDD_HHMMSS.png`.
 
----
-
 ## Keybind (mangoWC)
 
 Add to your mangoWC config:
@@ -130,8 +118,6 @@ Add to your mangoWC config:
 bind = SUPER SHIFT, p, exec, myshot -a
 bind = SUPER SHIFT, s, exec, myshot
 ```
-
----
 
 ## File structure
 
