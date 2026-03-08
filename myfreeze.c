@@ -45,7 +45,7 @@
  *   - xdg-shell                    (wayland-protocols/stable)
  */
 
-#define _GNU_SOURCE  /* memfd_create, MFD_CLOEXEC */
+#define _GNU_SOURCE /* memfd_create, MFD_CLOEXEC */
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,50 +56,66 @@
 #include <wayland-client.h>
 
 /* Generated from protocol XMLs by wayland-scanner (see Makefile) */
-#include "wlr-screencopy-unstable-v1-client-protocol.h"
-#include "wlr-layer-shell-unstable-v1-client-protocol.h"
 #include "fractional-scale-v1-client-protocol.h"
 #include "viewporter-client-protocol.h"
+#include "wlr-layer-shell-unstable-v1-client-protocol.h"
+#include "wlr-screencopy-unstable-v1-client-protocol.h"
 #include "xdg-shell-client-protocol.h"
 
 /* -------------------------------------------------------------------------
  * Wayland global objects
  * Populated by registry_handle_global() when the compositor advertises them.
  * ------------------------------------------------------------------------- */
-static struct wl_display                  *g_display        = NULL; /* compositor connection */
-static struct wl_registry                 *g_registry       = NULL; /* global object list */
-static struct wl_compositor               *g_compositor     = NULL; /* surface/region factory */
-static struct wl_shm                      *g_shm            = NULL; /* shared memory factory */
-static struct wl_output                   *g_output         = NULL; /* first monitor found */
-static struct zwlr_screencopy_manager_v1  *g_screencopy_mgr = NULL; /* screen capture protocol */
-static struct zwlr_layer_shell_v1         *g_layer_shell    = NULL; /* layer surface protocol */
-static struct wp_fractional_scale_manager_v1 *g_frac_mgr    = NULL; /* fractional scale protocol */
-static struct wp_viewporter               *g_viewporter     = NULL; /* viewport/scaling protocol */
+static struct wl_display                     *g_display        = NULL; // compositor connection
+static struct wl_registry                    *g_registry       = NULL; // global object list
+static struct wl_compositor                  *g_compositor     = NULL; // surface/region factory
+static struct wl_shm                         *g_shm            = NULL; // shared memory factory
+static struct wl_output                      *g_output         = NULL; // first monitor found
+static struct zwlr_screencopy_manager_v1     *g_screencopy_mgr = NULL; // screen capture protocol
+static struct zwlr_layer_shell_v1            *g_layer_shell    = NULL; // layer surface protocol
+static struct wp_fractional_scale_manager_v1 *g_frac_mgr       = NULL; // fractional scale protocol
+static struct wp_viewporter                  *g_viewporter     = NULL; // viewport/scaling protocol
 
 /* -------------------------------------------------------------------------
  * Output geometry
  * We need the logical size of the output to set the viewport destination
  * and layer surface size correctly.
  * ------------------------------------------------------------------------- */
-static int g_output_width  = 0; /* logical width  in compositor coordinates */
-static int g_output_height = 0; /* logical height in compositor coordinates */
+static int g_output_width  = 0; // logical width  in compositor coordinates
+static int g_output_height = 0; // logical height in compositor coordinates
 
-static void output_handle_geometry(void *data, struct wl_output *output,
-                                   int32_t x, int32_t y,
-                                   int32_t phys_w, int32_t phys_h,
-                                   int32_t subpixel, const char *make,
-                                   const char *model, int32_t transform)
-{
-    (void)data; (void)output; (void)x; (void)y;
-    (void)phys_w; (void)phys_h; (void)subpixel;
-    (void)make; (void)model; (void)transform;
+static void output_handle_geometry(void             *data,
+                                   struct wl_output *output,
+                                   int32_t           x,
+                                   int32_t           y,
+                                   int32_t           phys_w,
+                                   int32_t           phys_h,
+                                   int32_t           subpixel,
+                                   const char       *make,
+                                   const char       *model,
+                                   int32_t           transform) {
+    (void)data;
+    (void)output;
+    (void)x;
+    (void)y;
+    (void)phys_w;
+    (void)phys_h;
+    (void)subpixel;
+    (void)make;
+    (void)model;
+    (void)transform;
 }
 
-static void output_handle_mode(void *data, struct wl_output *output,
-                               uint32_t flags, int32_t width, int32_t height,
-                               int32_t refresh)
-{
-    (void)data; (void)output; (void)flags; (void)refresh;
+static void output_handle_mode(void             *data,
+                               struct wl_output *output,
+                               uint32_t          flags,
+                               int32_t           width,
+                               int32_t           height,
+                               int32_t           refresh) {
+    (void)data;
+    (void)output;
+    (void)flags;
+    (void)refresh;
     /* mode gives physical pixel size; we'll use it as fallback if
      * no fractional scale is advertised (i.e. scale = 1) */
     if (g_output_width == 0) {
@@ -108,20 +124,28 @@ static void output_handle_mode(void *data, struct wl_output *output,
     }
 }
 
-static void output_handle_done(void *data, struct wl_output *output)
-{ (void)data; (void)output; }
+static void output_handle_done(void *data, struct wl_output *output) {
+    (void)data;
+    (void)output;
+}
 
-static void output_handle_scale(void *data, struct wl_output *output,
-                                int32_t factor)
-{ (void)data; (void)output; (void)factor; }
+static void output_handle_scale(void *data, struct wl_output *output, int32_t factor) {
+    (void)data;
+    (void)output;
+    (void)factor;
+}
 
-static void output_handle_name(void *data, struct wl_output *output,
-                               const char *name)
-{ (void)data; (void)output; (void)name; }
+static void output_handle_name(void *data, struct wl_output *output, const char *name) {
+    (void)data;
+    (void)output;
+    (void)name;
+}
 
-static void output_handle_description(void *data, struct wl_output *output,
-                                      const char *desc)
-{ (void)data; (void)output; (void)desc; }
+static void output_handle_description(void *data, struct wl_output *output, const char *desc) {
+    (void)data;
+    (void)output;
+    (void)desc;
+}
 
 static const struct wl_output_listener output_listener = {
     .geometry    = output_handle_geometry,
@@ -138,10 +162,8 @@ static const struct wl_output_listener output_listener = {
 
 /* Called for every global the compositor advertises. We bind only what
  * we need and ignore everything else. */
-static void registry_handle_global(void *data, struct wl_registry *reg,
-                                   uint32_t name, const char *iface,
-                                   uint32_t version)
-{
+static void registry_handle_global(
+    void *data, struct wl_registry *reg, uint32_t name, const char *iface, uint32_t version) {
     (void)data;
     if (strcmp(iface, wl_compositor_interface.name) == 0) {
         g_compositor = wl_registry_bind(reg, name, &wl_compositor_interface, 4);
@@ -152,16 +174,13 @@ static void registry_handle_global(void *data, struct wl_registry *reg,
         g_output = wl_registry_bind(reg, name, &wl_output_interface, 4);
         wl_output_add_listener(g_output, &output_listener, NULL);
     } else if (strcmp(iface, zwlr_screencopy_manager_v1_interface.name) == 0) {
-        g_screencopy_mgr = wl_registry_bind(reg, name,
-                               &zwlr_screencopy_manager_v1_interface, 3);
+        g_screencopy_mgr = wl_registry_bind(reg, name, &zwlr_screencopy_manager_v1_interface, 3);
     } else if (strcmp(iface, zwlr_layer_shell_v1_interface.name) == 0) {
         /* Cap at version 4 - that's all we use */
-        g_layer_shell = wl_registry_bind(reg, name,
-                            &zwlr_layer_shell_v1_interface,
-                            version < 4 ? version : 4);
+        g_layer_shell =
+            wl_registry_bind(reg, name, &zwlr_layer_shell_v1_interface, version < 4 ? version : 4);
     } else if (strcmp(iface, wp_fractional_scale_manager_v1_interface.name) == 0) {
-        g_frac_mgr = wl_registry_bind(reg, name,
-                         &wp_fractional_scale_manager_v1_interface, 1);
+        g_frac_mgr = wl_registry_bind(reg, name, &wp_fractional_scale_manager_v1_interface, 1);
     } else if (strcmp(iface, wp_viewporter_interface.name) == 0) {
         g_viewporter = wl_registry_bind(reg, name, &wp_viewporter_interface, 1);
     }
@@ -169,9 +188,11 @@ static void registry_handle_global(void *data, struct wl_registry *reg,
 
 /* Called when a compositor global is removed (e.g. monitor unplugged).
  * We don't handle hot-unplug since myfreeze is a one-shot tool. */
-static void registry_handle_global_remove(void *data, struct wl_registry *reg,
-                                          uint32_t name)
-{ (void)data; (void)reg; (void)name; }
+static void registry_handle_global_remove(void *data, struct wl_registry *reg, uint32_t name) {
+    (void)data;
+    (void)reg;
+    (void)name;
+}
 
 static const struct wl_registry_listener registry_listener = {
     .global        = registry_handle_global,
@@ -186,11 +207,10 @@ static const struct wl_registry_listener registry_listener = {
  * ------------------------------------------------------------------------- */
 static uint32_t g_scale_120 = 120; /* default 1x (120/120) until compositor tells us */
 
-static void frac_scale_preferred(void *data,
-                                 struct wp_fractional_scale_v1 *frac,
-                                 uint32_t scale_times_120)
-{
-    (void)data; (void)frac;
+static void
+frac_scale_preferred(void *data, struct wp_fractional_scale_v1 *frac, uint32_t scale_times_120) {
+    (void)data;
+    (void)frac;
     g_scale_120 = scale_times_120; /* store for buffer size calculation */
 }
 
@@ -209,17 +229,19 @@ static int g_configured = 0;
 /* Compositor sends configure to assign our layer surface a size.
  * Since we use anchor-all + exclusive_zone=-1 we go fullscreen;
  * we don't care about the w/h, just ack it. */
-static void layer_surface_configure(void *data,
-                                    struct zwlr_layer_surface_v1 *surf,
-                                    uint32_t serial, uint32_t w, uint32_t h)
-{
-    (void)data; (void)w; (void)h;
+static void layer_surface_configure(
+    void *data, struct zwlr_layer_surface_v1 *surf, uint32_t serial, uint32_t w, uint32_t h) {
+    (void)data;
+    (void)w;
+    (void)h;
     zwlr_layer_surface_v1_ack_configure(surf, serial);
     g_configured = 1;
 }
 
-static void layer_surface_closed(void *data, struct zwlr_layer_surface_v1 *surf)
-{ (void)data; (void)surf; }
+static void layer_surface_closed(void *data, struct zwlr_layer_surface_v1 *surf) {
+    (void)data;
+    (void)surf;
+}
 
 static const struct zwlr_layer_surface_v1_listener layer_surface_listener = {
     .configure = layer_surface_configure,
@@ -235,10 +257,9 @@ static const struct zwlr_layer_surface_v1_listener layer_surface_listener = {
  * Using a frame callback is more reliable than any sleep-based approach. */
 static int g_frame_done = 0;
 
-static void frame_callback_done(void *data, struct wl_callback *cb,
-                                uint32_t time)
-{
-    (void)data; (void)time;
+static void frame_callback_done(void *data, struct wl_callback *cb, uint32_t time) {
+    (void)data;
+    (void)time;
     g_frame_done = 1;
     wl_callback_destroy(cb);
 }
@@ -261,9 +282,9 @@ typedef struct {
     uint32_t stride; /* bytes per row */
 
     /* Shared memory backing */
-    int       fd;       /* memfd file descriptor */
-    void     *shm_data; /* mmap'd pointer to pixel data */
-    size_t    shm_size; /* total size in bytes */
+    int    fd;       /* memfd file descriptor */
+    void  *shm_data; /* mmap'd pointer to pixel data */
+    size_t shm_size; /* total size in bytes */
 
     /* wl_shm objects */
     struct wl_shm_pool *pool;
@@ -277,36 +298,38 @@ typedef struct {
 
 /* Called by the compositor to tell us what buffer it wants us to provide.
  * We allocate a wl_shm buffer of the requested size/format here. */
-static void screencopy_buffer(void *data,
+static void screencopy_buffer(void                            *data,
                               struct zwlr_screencopy_frame_v1 *frame,
-                              uint32_t format, uint32_t width,
-                              uint32_t height, uint32_t stride)
-{
+                              uint32_t                         format,
+                              uint32_t                         width,
+                              uint32_t                         height,
+                              uint32_t                         stride) {
     ScreencopyFrame *sf = data;
-    sf->format = format;
-    sf->width  = width;
-    sf->height = height;
-    sf->stride = stride;
+    sf->format          = format;
+    sf->width           = width;
+    sf->height          = height;
+    sf->stride          = stride;
 
     sf->shm_size = (size_t)stride * height;
 
     /* Allocate anonymous shared memory for the capture buffer */
     sf->fd = memfd_create("myfreeze-screencopy", MFD_CLOEXEC);
     if (sf->fd < 0 || ftruncate(sf->fd, (off_t)sf->shm_size) < 0) {
-        sf->copy_failed = 1; return;
+        sf->copy_failed = 1;
+        return;
     }
 
-    sf->shm_data = mmap(NULL, sf->shm_size, PROT_READ | PROT_WRITE,
-                        MAP_SHARED, sf->fd, 0);
+    sf->shm_data = mmap(NULL, sf->shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, sf->fd, 0);
     if (sf->shm_data == MAP_FAILED) {
-        close(sf->fd); sf->copy_failed = 1; return;
+        close(sf->fd);
+        sf->copy_failed = 1;
+        return;
     }
 
     /* Create wl_shm_pool and wl_buffer backed by our memfd */
     sf->pool   = wl_shm_create_pool(g_shm, sf->fd, (int32_t)sf->shm_size);
-    sf->buffer = wl_shm_pool_create_buffer(sf->pool, 0,
-                     (int32_t)width, (int32_t)height,
-                     (int32_t)stride, format);
+    sf->buffer = wl_shm_pool_create_buffer(
+        sf->pool, 0, (int32_t)width, (int32_t)height, (int32_t)stride, format);
     wl_shm_pool_destroy(sf->pool);
 
     /* Tell the screencopy frame to copy into our buffer */
@@ -316,44 +339,61 @@ static void screencopy_buffer(void *data,
 
 /* Called when the compositor has finished copying the screen into our buffer.
  * The pixel data is now valid and ready to display. */
-static void screencopy_ready(void *data,
+static void screencopy_ready(void                            *data,
                              struct zwlr_screencopy_frame_v1 *frame,
-                             uint32_t tv_sec_hi, uint32_t tv_sec_lo,
-                             uint32_t tv_nsec)
-{
-    (void)frame; (void)tv_sec_hi; (void)tv_sec_lo; (void)tv_nsec;
+                             uint32_t                         tv_sec_hi,
+                             uint32_t                         tv_sec_lo,
+                             uint32_t                         tv_nsec) {
+    (void)frame;
+    (void)tv_sec_hi;
+    (void)tv_sec_lo;
+    (void)tv_nsec;
     ((ScreencopyFrame *)data)->copy_done = 1;
 }
 
 /* Called when the compositor can't perform the capture (e.g. output gone) */
-static void screencopy_failed(void *data,
-                              struct zwlr_screencopy_frame_v1 *frame)
-{
+static void screencopy_failed(void *data, struct zwlr_screencopy_frame_v1 *frame) {
     (void)frame;
     ((ScreencopyFrame *)data)->copy_failed = 1;
 }
 
 /* Unused but required by the listener struct */
-static void screencopy_flags(void *data,
-                             struct zwlr_screencopy_frame_v1 *frame,
-                             uint32_t flags)
-{ (void)data; (void)frame; (void)flags; }
+static void screencopy_flags(void *data, struct zwlr_screencopy_frame_v1 *frame, uint32_t flags) {
+    (void)data;
+    (void)frame;
+    (void)flags;
+}
 
-static void screencopy_damage(void *data,
+static void screencopy_damage(void                            *data,
                               struct zwlr_screencopy_frame_v1 *frame,
-                              uint32_t x, uint32_t y,
-                              uint32_t width, uint32_t height)
-{ (void)data; (void)frame; (void)x; (void)y; (void)width; (void)height; }
+                              uint32_t                         x,
+                              uint32_t                         y,
+                              uint32_t                         width,
+                              uint32_t                         height) {
+    (void)data;
+    (void)frame;
+    (void)x;
+    (void)y;
+    (void)width;
+    (void)height;
+}
 
-static void screencopy_linux_dmabuf(void *data,
+static void screencopy_linux_dmabuf(void                            *data,
                                     struct zwlr_screencopy_frame_v1 *frame,
-                                    uint32_t format,
-                                    uint32_t width, uint32_t height)
-{ (void)data; (void)frame; (void)format; (void)width; (void)height; }
+                                    uint32_t                         format,
+                                    uint32_t                         width,
+                                    uint32_t                         height) {
+    (void)data;
+    (void)frame;
+    (void)format;
+    (void)width;
+    (void)height;
+}
 
-static void screencopy_buffer_done(void *data,
-                                   struct zwlr_screencopy_frame_v1 *frame)
-{ (void)data; (void)frame; }
+static void screencopy_buffer_done(void *data, struct zwlr_screencopy_frame_v1 *frame) {
+    (void)data;
+    (void)frame;
+}
 
 static const struct zwlr_screencopy_frame_v1_listener screencopy_listener = {
     .buffer       = screencopy_buffer,
@@ -368,8 +408,7 @@ static const struct zwlr_screencopy_frame_v1_listener screencopy_listener = {
 /* -------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------- */
-int main(void)
-{
+int main(void) {
     /* --- Connect to Wayland and collect globals ------------------------ */
     g_display = wl_display_connect(NULL);
     if (!g_display) {
@@ -384,9 +423,10 @@ int main(void)
 
     /* Verify we got everything we need */
     if (!g_compositor || !g_shm || !g_layer_shell || !g_screencopy_mgr) {
-        fprintf(stderr, "myfreeze: missing required Wayland protocols\n"
-                        "  need: wl_compositor, wl_shm, "
-                        "zwlr_layer_shell_v1, zwlr_screencopy_manager_v1\n");
+        fprintf(stderr,
+                "myfreeze: missing required Wayland protocols\n"
+                "  need: wl_compositor, wl_shm, "
+                "zwlr_layer_shell_v1, zwlr_screencopy_manager_v1\n");
         return 1;
     }
 
@@ -403,10 +443,9 @@ int main(void)
     uint32_t scale_120 = 120; /* default: 1x scale */
 
     if (has_hires) {
-        struct wl_surface *probe_surf = wl_compositor_create_surface(g_compositor);
+        struct wl_surface             *probe_surf = wl_compositor_create_surface(g_compositor);
         struct wp_fractional_scale_v1 *frac =
-            wp_fractional_scale_manager_v1_get_fractional_scale(
-                g_frac_mgr, probe_surf);
+            wp_fractional_scale_manager_v1_get_fractional_scale(g_frac_mgr, probe_surf);
         wp_fractional_scale_v1_add_listener(frac, &frac_scale_listener, NULL);
         wl_surface_commit(probe_surf);
         wl_display_roundtrip(g_display); /* get preferred_scale event */
@@ -416,12 +455,12 @@ int main(void)
     }
 
     /* Physical pixel dimensions = logical size * (scale / 120) */
-    int buf_width  = (int)((g_output_width  * scale_120 + 60) / 120);
+    int buf_width  = (int)((g_output_width * scale_120 + 60) / 120);
     int buf_height = (int)((g_output_height * scale_120 + 60) / 120);
 
     /* Fallback: if output size wasn't reported, use safe defaults */
     if (buf_width <= 0 || buf_height <= 0) {
-        buf_width  = g_output_width  > 0 ? g_output_width  : 1920;
+        buf_width  = g_output_width > 0 ? g_output_width : 1920;
         buf_height = g_output_height > 0 ? g_output_height : 1080;
     }
 
@@ -430,10 +469,9 @@ int main(void)
 
     /* Request a capture of the entire output */
     struct zwlr_screencopy_frame_v1 *copy_frame =
-        zwlr_screencopy_manager_v1_capture_output(
-            g_screencopy_mgr,
-            0,          /* overlay_cursor: 0 = don't include cursor */
-            g_output);
+        zwlr_screencopy_manager_v1_capture_output(g_screencopy_mgr,
+                                                  0, /* overlay_cursor: 0 = don't include cursor */
+                                                  g_output);
     zwlr_screencopy_frame_v1_add_listener(copy_frame, &screencopy_listener, &sf);
 
     /* Pump events until the capture completes (or fails) */
@@ -454,22 +492,20 @@ int main(void)
      * of scale changes while the overlay is active */
     if (has_hires) {
         struct wp_fractional_scale_v1 *frac =
-            wp_fractional_scale_manager_v1_get_fractional_scale(
-                g_frac_mgr, surface);
+            wp_fractional_scale_manager_v1_get_fractional_scale(g_frac_mgr, surface);
         wp_fractional_scale_v1_add_listener(frac, &frac_scale_listener, NULL);
     }
 
     /* Request OVERLAY layer: above all windows, below the cursor */
-    struct zwlr_layer_surface_v1 *layer_surf =
-        zwlr_layer_shell_v1_get_layer_surface(
-            g_layer_shell, surface, g_output,
-            ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY, "myfreeze");
+    struct zwlr_layer_surface_v1 *layer_surf = zwlr_layer_shell_v1_get_layer_surface(
+        g_layer_shell, surface, g_output, ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY, "myfreeze");
 
     /* size=0,0 + all anchors + exclusive_zone=-1 -> stretch to full output */
     zwlr_layer_surface_v1_set_size(layer_surf, 0, 0);
-    zwlr_layer_surface_v1_set_anchor(layer_surf,
-        ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP    | ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM |
-        ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT   | ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT);
+    zwlr_layer_surface_v1_set_anchor(
+        layer_surf,
+        ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP | ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM |
+            ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT | ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT);
     zwlr_layer_surface_v1_set_exclusive_zone(layer_surf, -1);
     zwlr_layer_surface_v1_add_listener(layer_surf, &layer_surface_listener, NULL);
     wl_surface_commit(surface);
@@ -484,11 +520,9 @@ int main(void)
      * g_output_height logical pixels" - resulting in a 1:1 pixel mapping
      * with no blurring on fractional scaled displays. */
     if (has_hires) {
-        struct wp_viewport *viewport = wp_viewporter_get_viewport(
-            g_viewporter, surface);
+        struct wp_viewport *viewport = wp_viewporter_get_viewport(g_viewporter, surface);
         /* destination = logical size of the output */
-        wp_viewport_set_destination(viewport,
-            g_output_width, g_output_height);
+        wp_viewport_set_destination(viewport, g_output_width, g_output_height);
         /* We don't destroy viewport here - it must live as long as surface */
     }
 
@@ -543,4 +577,3 @@ int main(void)
     wl_display_disconnect(g_display);
     return 0;
 }
-
